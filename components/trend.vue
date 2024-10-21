@@ -11,7 +11,7 @@
 				class="h-8 w-full"
 				v-if="loading"
 			/>
-			<div v-else>{{ amount }}</div>
+			<div v-else>{{ currency }}</div>
 		</div>
 		<div>
 			<USkeleton
@@ -28,7 +28,7 @@
 					:class="{ green: trendingUp, red: !trendingUp }"
 				/>
 				<div class="text-gray-500 dark:text-gray-400">
-					{{ percentageTrend }}% vs last period
+					{{ percentageTrend }} vs last period
 				</div>
 			</div>
 		</div>
@@ -52,13 +52,16 @@ const icon = computed(() =>
 		: 'i-heroicons-arrow-trending-down'
 );
 
+const { currency } = useCurrency(props.amount);
+
 const percentageTrend = computed(() => {
 	if (props.amount === 0 || props.lastAmount === 0) {
-		return '∞';
+		return '∞%';
 	}
 	const bigger = Math.max(props.amount, props.lastAmount);
 	const lower = Math.min(props.amount, props.lastAmount);
-	return Math.ceil(((bigger - lower) / lower) * 100);
+	const ratio = Math.ceil(((bigger - lower) / lower) * 100);
+	return `${ratio}%`;
 });
 </script>
 
