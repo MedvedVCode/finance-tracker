@@ -6,9 +6,9 @@
 			<div class="flex items-center space-x-2">
 				<UIcon
 					:name="icon"
-					class="text-green-600"
+					:class="[iconColor]"
 				/>
-				<div>{{ transaction.type }}</div>
+				<div>{{ transaction.description }}</div>
 			</div>
 			<div><UBadge color="white" v-if="transaction.category">{{ transaction.category }}</UBadge></div>
 		</div>
@@ -35,7 +35,9 @@ const props = defineProps({
 
 const { currency } = useCurrency(props.transaction.amount);
 
-const icon = computed( () => props.transaction.type === 'Income' ? 'i-heroicons-arrow-up-right' : 'i-heroicons-arrow-down-left');
+const isIncome = computed(() => props.transaction.type === 'Income');
+const icon = computed( () => isIncome.value ? 'i-heroicons-arrow-up-right' : 'i-heroicons-arrow-down-left');
+const iconColor = computed( () => isIncome.value ? 'text-green-600' : 'text-red-600');
 
 const items = [
 	[

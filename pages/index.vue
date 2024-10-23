@@ -41,15 +41,29 @@
 		></Trend>
 	</section>
 	<section>
-		<Transaction
-			v-for="transaction in transactions"
-			:key="transaction.id"
-			:transaction="transaction"
-		/>
+		<div
+			v-for="(transactionOfDay, date) in transactionsGroupedByDate"
+			:key="date"
+			class="mb-10"
+		>
+			<DailyTransactionsSummary
+				:date="date"
+				:transactions="transactionOfDay"
+			/>
+			<Transaction
+				v-for="transaction in transactionOfDay"
+				:key="transaction.id"
+				:transaction="transaction"
+			/>
+		</div>
 	</section>
 </template>
 
 <script setup>
+//set color mode by hands
+const colorMode = useColorMode();
+colorMode.preference = 'system';
+
 import { transactionViewOptions } from '~/constants';
 const selectedView = ref(transactionViewOptions[1]);
 
@@ -62,5 +76,18 @@ const { data, pending } = await useAsyncData('transactions', async () => {
 	if (error) return [];
 	return data;
 });
+
 transactions.value = data.value;
+
+const transactionsGroupedByDate = computed(() => {
+	let grouped = {};
+	for (const transaction of transactions.value) {
+		const date = new Date(transaction.created_at).toISOString().split('T')[0];
+		if (!grouped[date]) {
+			grouped[date] = [];
+		}
+		grouped[date].push(transaction);
+	}
+	return grouped;
+});
 </script>
