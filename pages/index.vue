@@ -14,14 +14,14 @@
 		<Trend
 			color="green"
 			title="Income"
-			:amount="4000"
+			:amount="incomeTotal"
 			:last-amount="3000"
 			:loading="isLoading"
 		></Trend>
 		<Trend
 			color="red"
 			title="Expense"
-			:amount="4000"
+			:amount="expenseTotal"
 			:last-amount="5000"
 			:loading="isLoading"
 		></Trend>
@@ -40,6 +40,29 @@
 			:loading="isLoading"
 		></Trend>
 	</section>
+
+	<section class="flex justify-between mb-10">
+		<div>
+			<h2 class="text-2xl font-extrabold">Transactions</h2>
+			<div class="text-gray-500 dark:text-gray-400">
+				You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this period
+			</div>
+		</div>
+		<div>
+			<UModal v-model="isOpen">
+				<UCard>
+					<template #header>
+						<h3>Add Transaction</h3>
+					</template>
+					<div>
+						Hello!
+					</div>
+				</UCard>
+			</UModal>
+			<UButton icon="i-heroicons-plus-circle" color="white" variant="solid" label="Add" @click="isOpen = true" />
+		</div>
+	</section>
+
 	<section v-if="!isLoading">
 		<div
 			v-for="(transactionOfDay, date) in transactionsGroupedByDate"
@@ -59,7 +82,11 @@
 		</div>
 	</section>
 	<section v-else>
-		<USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
+		<USkeleton
+			class="h-8 w-full mb-2"
+			v-for="i in 4"
+			:key="i"
+		/>
 	</section>
 </template>
 
@@ -68,6 +95,8 @@
 const colorMode = useColorMode();
 colorMode.preference = 'dark';
 
+const isOpen = ref(false);
+
 import { transactionViewOptions } from '~/constants';
 const supabase = useSupabaseClient();
 
@@ -75,7 +104,23 @@ const selectedView = ref(transactionViewOptions[1]);
 const transactions = ref([]);
 const isLoading = ref(false);
 
+const income = computed(() =>
+	transactions.value.filter((t) => t.type === 'Income')
+);
+const expense = computed(() =>
+	transactions.value.filter((t) => t.type === 'Expense')
+);
 
+const incomeCount = computed(() => income.value.length);
+const expenseCount = computed(() => expense.value.length);
+
+const incomeTotal = computed(() =>
+	income.value.reduce((acc, curr) => acc + curr.amount, 0)
+);
+
+const expenseTotal = computed(() =>
+	expense.value.reduce((acc, curr) => acc + curr.amount, 0)
+);
 
 const fetchTransactions = async () => {
 	isLoading.value = true;
@@ -92,8 +137,9 @@ const fetchTransactions = async () => {
 		}
 	}
 };
-const refreshTransactions = async () => transactions.value = await fetchTransactions();
-	
+const refreshTransactions = async () =>
+	(transactions.value = await fetchTransactions());
+
 await refreshTransactions();
 
 const transactionsGroupedByDate = computed(() => {
