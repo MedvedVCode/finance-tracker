@@ -1,0 +1,58 @@
+<template>
+	<div
+		class="grid grid-cols-2 py-4 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+	>
+		<div class="flex items-center justify-between">
+			<div class="flex items-center space-x-2">
+				<UIcon
+					:name="icon"
+					class="text-green-600"
+				/>
+				<div>{{ transaction.type }}</div>
+			</div>
+			<div><UBadge color="white" v-if="transaction.category">{{ transaction.category }}</UBadge></div>
+		</div>
+		<div class="flex items-center justify-end space-x-2">
+			<div>{{ currency }}</div>
+			<UDropdown
+				:items="items"
+				:popper="{ placement: 'bottom-start' }"
+			>
+				<UButton
+					color="white"
+					variant="ghost"
+					trailing-icon="i-heroicons-ellipsis-horizontal"
+				></UButton>
+			</UDropdown>
+		</div>
+	</div>
+</template>
+
+<script setup>
+const props = defineProps({
+	transaction: Object,
+});
+
+const { currency } = useCurrency(props.transaction.amount);
+
+const icon = computed( () => props.transaction.type === 'Income' ? 'i-heroicons-arrow-up-right' : 'i-heroicons-arrow-down-left');
+
+const items = [
+	[
+		{
+			label: 'Edit',
+			icon: 'i-heroicons-pencil-square-20-solid',
+			click: () => {
+				console.log('Edit');
+			},
+		},
+		{
+			label: 'Delete',
+			icon: 'i-heroicons-trash-20-solid',
+			click: () => {
+				console.log('Delete');
+			},
+		},
+	],
+];
+</script>
