@@ -132,7 +132,8 @@ const schema = z.intersection(
 const form = ref();
 
 const save = async () => {
-	form.value.validate();
+	// form.value.validate();
+	if (form.value.errors.length) return;
 };
 
 const initialState = {
@@ -149,13 +150,13 @@ const state = ref({
 
 const resetForm = () => {
 	Object.assign(state.value, initialState);
+	form.value.clear()
 };
 
 const isOpen = computed({
 	get: () => props.modelValue,
 	set: (value) => {
 		if (!value) resetForm();
-		
 		emits('update:modelValue', value);
 	},
 });
