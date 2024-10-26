@@ -5,84 +5,158 @@
 				<h3>Add Transaction</h3>
 			</template>
 
-			<UFormGroup
-				:required="true"
-				label="Transation type"
-				name="type"
-				class="mb-4"
+			<UForm
+				:state="state"
+				:schema="schema"
+				ref="form"
+				@submit.prevent="save"
 			>
-				<USelect
-					:options="types"
-					placeholder="Select the Transaction types"
+				<UFormGroup
+					:required="true"
+					label="Transation type"
+					name="type"
+					class="mb-4"
+				>
+					<USelect
+						:options="types"
+						placeholder="Select the Transaction types"
+						v-model="state.type"
+					/>
+				</UFormGroup>
+
+				<UFormGroup
+					label="Amount"
+					:required="true"
+					name="amount"
+					class="mb-4"
+				>
+					<UInput
+						type="number"
+						placeholder="Amount"
+						v-model.number="state.amount"
+					/>
+				</UFormGroup>
+
+				<UFormGroup
+					label="Transaction date"
+					:required="true"
+					name="created_at"
+					class="mb-4"
+				>
+					<UInput
+						type="date"
+						icon="i-heroicons-calendar-20-solid"
+						v-model="state.created_at"
+					/>
+				</UFormGroup>
+
+				<UFormGroup
+					label="Description"
+					hint="optional"
+					name="description"
+					class="mb-4"
+				>
+					<UInput
+						placeholder="Description"
+						v-model="state.description"
+					/>
+				</UFormGroup>
+
+				<UFormGroup
+					:required="true"
+					label="Category"
+					name="category"
+					class="mb-4"
+					v-if="state.type === 'Expense'"
+				>
+					<USelect
+						:options="categories"
+						placeholder="Categories"
+						v-model="state.category"
+					/>
+				</UFormGroup>
+
+				<UButton
+					type="submit"
+					color="black"
+					variant="solid"
+					label="Save"
+					block
 				/>
-			</UFormGroup>
-
-			<UFormGroup
-				label="Amount"
-				:required="true"
-				name="amount"
-				class="mb-4"
-			>
-				<UInput
-					type="number"
-					placeholder="Amount"
-				/>
-			</UFormGroup>
-
-			<UFormGroup
-				label="Transaction date"
-				:required="true"
-				name="created_at"
-				class="mb-4"
-			>
-				<UInput
-					type="date"
-					icon="i-heroicons-calendar-20-solid"
-				/>
-			</UFormGroup>
-
-			<UFormGroup
-				label="Description"
-				hint="optional"
-				name="description"
-				class="mb-4"
-			>
-				<UInput placeholder="Description" />
-			</UFormGroup>
-
-			<UFormGroup
-				:required="true"
-				label="Category"
-				name="category"
-				class="mb-4"
-			>
-				<USelect
-					:options="categories"
-					placeholder="Categories"
-				/>
-			</UFormGroup>
-
-			<UButton
-				type="submit"
-				color="black"
-				variant="solid"
-				label="Save"
-				block
-			/>
+			</UForm>
 		</UCard>
 	</UModal>
 </template>
 
 <script setup>
 import { categories, types } from '~/constants';
+import { z } from 'zod';
 
 const props = defineProps({
 	modelValue: Boolean,
 });
 const emits = defineEmits(['update:modelValue']);
 
+const defaultSchema = z.object({
+	// type: z.enum(types),
+	amount: z.number().positive('Amount must be more than 0'),
+	created_at: z.string(),
+	description: z.string().optional(),
+	// category: z.enum(categories),
+});
+
+const incommeSchema = z.object({
+	type: z.literal('Income'),
+});
+const expenseSchema = z.object({
+	type: z.literal('Expense'),
+	category: z.enum(categories),
+});
+const investmentSchema = z.object({
+	type: z.literal('Investment'),
+});
+const savingSchema = z.object({
+	type: z.literal('Saving'),
+});
+
+const schema = z.intersection(
+	z.discriminatedUnion('type', [
+		incommeSchema,
+		expenseSchema,
+		investmentSchema,
+		savingSchema,
+	]),
+	defaultSchema
+);
+
+const form = ref();
+
+const save = async () => {
+	form.value.validate();
+};
+
+const initialState = {
+	type: undefined,
+	amount: 0,
+	created_at: undefined,
+	description: undefined,
+	category: undefined,
+};
+
+const state = ref({
+	...initialState,
+});
+
+const resetForm = () => {
+	Object.assign(state.value, initialState);
+};
+
 const isOpen = computed({
 	get: () => props.modelValue,
-	set: (value) => emits('update:modelValue', value),
+	set: (value) => {
+		if (!value) resetForm();
+		
+		emits('update:modelValue', value);
+	},
 });
 </script>
