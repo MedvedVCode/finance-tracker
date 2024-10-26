@@ -45,21 +45,19 @@
 		<div>
 			<h2 class="text-2xl font-extrabold">Transactions</h2>
 			<div class="text-gray-500 dark:text-gray-400">
-				You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this period
+				You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this
+				period
 			</div>
 		</div>
 		<div>
-			<UModal v-model="isOpen">
-				<UCard>
-					<template #header>
-						<h3>Add Transaction</h3>
-					</template>
-					<div>
-						Hello!
-					</div>
-				</UCard>
-			</UModal>
-			<UButton icon="i-heroicons-plus-circle" color="white" variant="solid" label="Add" @click="isOpen = true" />
+			<TransactionModal v-model="isOpen" />
+			<UButton
+				icon="i-heroicons-plus-circle"
+				color="white"
+				variant="solid"
+				label="Add"
+				@click="isOpen = true"
+			/>
 		</div>
 	</section>
 
