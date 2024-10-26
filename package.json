@@ -17,6 +17,7 @@
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.0.3",
     "zod": "^3.23.8"
   }
 }
