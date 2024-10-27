@@ -125,7 +125,12 @@ const fetchTransactions = async () => {
 	{
 		try {
 			const { data } = await useAsyncData('transactions', async () => {
-				const { data, error } = await supabase.from('transactions').select('*');
+				// Backend ordering by date
+
+				const { data, error } = await supabase
+					.from('transactions')
+					.select('*')
+					.order('created_at', { ascending: false });
 				if (error) return [];
 				return data;
 			});
@@ -149,6 +154,16 @@ const transactionsGroupedByDate = computed(() => {
 		}
 		grouped[date].push(transaction);
 	}
+	// Frontend sorting by date
+	// const sortedKeys = Object.keys(grouped).sort().reverse();
+	// const sortedGroupped = {}
+
+	// for (const key of sortedKeys) {
+	// 	sortedGroupped[key] = grouped[key];
+	// }
+	// grouped = sortedGroupped
+
+	// return sortedGroupped;
 	return grouped;
 });
 </script>
