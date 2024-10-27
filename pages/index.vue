@@ -101,9 +101,11 @@ colorMode.preference = 'dark';
 const isOpen = ref(false);
 const selectedView = ref(transactionViewOptions[1]);
 
+const dates = useSelectedTimePeriod(selectedView);
+
 const {
 	pending,
-	refresh,
+	refresh,	
 	transactions: {
 		incomeCount,
 		expenseCount,
