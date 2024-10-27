@@ -81,6 +81,7 @@
 					color="black"
 					variant="solid"
 					label="Save"
+					:loading="isLoading"
 					block
 				/>
 			</UForm>
@@ -95,7 +96,7 @@ import { z } from 'zod';
 const props = defineProps({
 	modelValue: Boolean,
 });
-const emits = defineEmits(['update:modelValue']);
+const emits = defineEmits(['update:modelValue', 'saved']);
 
 const defaultSchema = z.object({
 	// type: z.enum(types),
@@ -130,10 +131,38 @@ const schema = z.intersection(
 );
 
 const form = ref();
+const isLoading = ref(false);
+const supabase = useSupabaseClient();
+const toast = useToast();
 
 const save = async () => {
 	// form.value.validate();
 	if (form.value.errors.length) return;
+	try {
+		isLoading.value = true;
+		const { error } = await supabase
+			.from('transactions')
+			.upsert({ ...state.value });
+		if (!error) {
+			toast.add({
+				title: 'transaction saved',
+				icon: 'i-heroicons-check-circle',
+			});
+			isOpen.value = false;
+			emits('saved');
+			return;
+		}	
+		throw error;
+	} catch (err) {
+		toast.add({
+			title: 'transaction save error',
+			icon: 'i-heroicons-exclamation-circle',
+			description: err.message,
+			color: 'red',
+		});
+	} finally {
+		isLoading.value = false;
+	}
 };
 
 const initialState = {
@@ -150,7 +179,7 @@ const state = ref({
 
 const resetForm = () => {
 	Object.assign(state.value, initialState);
-	form.value.clear()
+	form.value.clear();
 };
 
 const isOpen = computed({
