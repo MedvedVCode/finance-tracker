@@ -14,6 +14,15 @@
 	</header>
 </template>
 
-<script setup></script>
-
-<style lang="scss" scoped></style>
+<script setup>
+const user = useSupabaseUser();
+watch(
+	user,
+	(user) => {
+		if (user) {
+			console.log(user);
+		}
+	},
+	{ immediate: true }
+);
+</script>
