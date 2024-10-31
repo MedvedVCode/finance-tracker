@@ -93,13 +93,13 @@
 
 <script setup>
 import { transactionViewOptions } from '~/constants';
-
+const user = useSupabaseUser(); 
 //set color mode by hands
 const colorMode = useColorMode();
 colorMode.preference = 'dark';
 
 const isOpen = ref(false);
-const selectedView = ref(transactionViewOptions[1]);
+const selectedView = ref(user.value.user_metadata?.transaction_view ?? transactionViewOptions[1]);
 
 const { current, previous } = useSelectedTimePeriod(selectedView);
 
