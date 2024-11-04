@@ -44,7 +44,7 @@ const email = ref('');
 const pending = ref(false);
 const { toastError } = useAppToast();
 const supabase = useSupabaseClient();
-const redirectUrl = useRuntimeConfig().public.redirectUrl;
+const redirectUrl = useRuntimeConfig().public.baseUrl;
 
 useRedirectIfAuthenticated();
 
