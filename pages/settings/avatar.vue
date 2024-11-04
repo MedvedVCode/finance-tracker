@@ -7,7 +7,7 @@
 				help="This would be blank by default"
 			>
 				<UAvatar
-					src="https://avatars.githubusercontent.com/u/739984?v=4"
+					:src="url"
 					size="3xl"
 				/>
 			</UFormGroup>
@@ -45,11 +45,13 @@ const user = useSupabaseUser();
 
 // We need to get the actual avatar URL
 const { toastSuccess, toastError } = useAppToast();
+const { url } = useAvatarUrl();
+console.log(url.value);
+
 
 const uploading = ref(false);
 const fileInput = ref(); // Reference to an input with ref="fileInput" attribute
 console.log(user.value);
-
 
 const saveAvatar = async () => {
 	const file = fileInput.value.input.files[0];
@@ -75,9 +77,15 @@ const saveAvatar = async () => {
 		await supabase.auth.updateUser({
 			data: {
 				avatar_url: fileName,
-			}
-		})
+			},
+		});
 		// 4. (OPTIONALLY) remove the old avatar file
+		if (currentAvatarUrl) {
+			const { error } = await supabase.storage
+				.from('avatars')
+				.remove([currentAvatarUrl]);
+			if (error) throw error;
+		}
 		// 5. Reset the file input
 		fileInput.value.input.value = null;
 
