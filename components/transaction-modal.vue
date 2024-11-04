@@ -2,7 +2,7 @@
 	<UModal v-model="isOpen">
 		<UCard>
 			<template #header>
-				<h3>Add Transaction</h3>
+				<h3>{{ isEditing ? 'Edit' : 'Add' }} Transaction</h3>
 			</template>
 
 			<UForm
@@ -18,6 +18,7 @@
 					class="mb-4"
 				>
 					<USelect
+						:disabled="isEditing"
 						:options="types"
 						placeholder="Select the Transaction types"
 						v-model="state.type"
@@ -95,15 +96,18 @@ import { z } from 'zod';
 
 const props = defineProps({
 	modelValue: Boolean,
+	transaction: {
+		type: Object,
+		required: false,
+	},
 });
+const isEditing = computed(() => !!props.transaction);
 const emits = defineEmits(['update:modelValue', 'saved']);
 
 const defaultSchema = z.object({
-	// type: z.enum(types),
 	amount: z.number().positive('Amount must be more than 0'),
 	created_at: z.string(),
 	description: z.string().optional(),
-	// category: z.enum(categories),
 });
 
 const incommeSchema = z.object({
@@ -142,7 +146,7 @@ const save = async () => {
 		isLoading.value = true;
 		const { error } = await supabase
 			.from('transactions')
-			.upsert({ ...state.value });
+			.upsert({ ...state.value, id: props.transaction?.id });
 		if (!error) {
 			toastSuccess({
 				title: 'Transaction saved',
@@ -170,9 +174,17 @@ const initialState = {
 	category: undefined,
 };
 
-const state = ref({
-	...initialState,
-});
+const state = ref(
+	isEditing.value
+		? {
+				type: props.transaction.type,
+				amount: props.transaction.amount,
+				created_at: props.transaction.created_at,
+				description: props.transaction.description,
+				category: props.transaction.category,
+		  }
+		: { ...initialState }
+);
 
 const resetForm = () => {
 	Object.assign(state.value, initialState);
