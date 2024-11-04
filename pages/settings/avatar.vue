@@ -46,12 +46,9 @@ const user = useSupabaseUser();
 // We need to get the actual avatar URL
 const { toastSuccess, toastError } = useAppToast();
 const { url } = useAvatarUrl();
-console.log(url.value);
-
 
 const uploading = ref(false);
 const fileInput = ref(); // Reference to an input with ref="fileInput" attribute
-console.log(user.value);
 
 const saveAvatar = async () => {
 	const file = fileInput.value.input.files[0];
